@@ -22,6 +22,10 @@ gradle-app.setting
 .gradle
 **/build/
 !src/**/build/
+gradlew*
+settings.gradle
+build.gradle
+gradle/
 
 # Ignore Gradle GUI config
 gradle-app.setting
