@@ -1,21 +1,32 @@
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
         try {
-            WorldMap map = new WorldMap(10, 10, 5, 10);
+            WorldMap map = new WorldMap(10, 10, 5, 10, 20);
+            Time worldTime = new Time(map, 5);
 
-            List<MoveDirection> genes = new ArrayList<>();
-            map.place(new Animal(map, {0, 0, 1}));
-            map.place(new Animal(map, new Vector2d(0, 9)));
+            ArrayList<MoveDirection> squirrelGenes = new ArrayList<MoveDirection>();
+            squirrelGenes.add(MoveDirection.NORTH);
+            squirrelGenes.add(MoveDirection.NORTH);
+            squirrelGenes.add(MoveDirection.NORTHEAST);
+            Animal squirrel = new Animal(map, squirrelGenes);
+            map.place(squirrel);
 
+            ArrayList<MoveDirection> foxGenes = new ArrayList<MoveDirection>();
+            foxGenes.add(MoveDirection.SOUTH);
+            foxGenes.add(MoveDirection.SOUTH);
+            foxGenes.add(MoveDirection.SOUTHWEST);
+            Animal fox = new Animal(map, foxGenes);
+            map.place(fox);
 
             System.out.println(map);
-            map.run(directions);
+            worldTime.runDay();
             System.out.println(map);
-        } catch (IllegalArgumentException ex) {
+
+        } catch (IllegalArgumentException | InterruptedException ex) {
             throw new IllegalArgumentException(ex);
         }
     }
+
 }
