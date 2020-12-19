@@ -1,3 +1,5 @@
+package evolutionWorld;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -48,6 +50,18 @@ public class WorldMap implements IWorldMap {
 
     public int getMaxAnimalEnergy() {
         return maxAnimalEnergy;
+    }
+
+    public Map<Vector2d, Animal> getAnimalsMap(){
+        return animalsMap;
+    }
+
+    public Map<Vector2d, JungleGrass> getJungleGrassMap(){
+        return jungleGrassMap;
+    }
+
+    public Map<Vector2d, RegularGrass> getRegularGrassesMap(){
+        return regularGrassesMap;
     }
 
     public int getJungleSize() {

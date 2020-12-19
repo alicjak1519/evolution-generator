@@ -1,7 +1,21 @@
+package visualisation;
+
+import evolutionWorld.Animal;
+import evolutionWorld.MoveDirection;
+import evolutionWorld.Time;
+import evolutionWorld.WorldMap;
+import javafx.scene.control.TextArea;
+
 import java.util.ArrayList;
 
-public class Main {
-    public static void main(String[] args) {
+public class Controller {
+    public TextArea myCoolTextField;
+
+    public void loginButtonClicked() {
+        System.out.println("User logged in!");
+    }
+
+    public void loginButtonClicked2(){
         try {
             WorldMap map = new WorldMap(10, 10, 5, 10, 20);
             Time worldTime = new Time(map, 5);
@@ -20,13 +34,11 @@ public class Main {
             Animal fox = new Animal(map, foxGenes);
             map.place(fox);
 
-            System.out.println(map);
-            worldTime.runDay();
-            System.out.println(map);
+            myCoolTextField.setText(map.toString());
 
-        } catch (IllegalArgumentException | InterruptedException ex) {
+        }
+        catch (IllegalArgumentException ex) {
             throw new IllegalArgumentException(ex);
         }
     }
-
 }

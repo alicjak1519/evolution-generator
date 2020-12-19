@@ -1,3 +1,5 @@
+package evolutionWorld;
+
 /**
  * The map visualizer converts the {@link IWorldMap} map into a string
  * representation.
@@ -11,7 +13,7 @@ public class MapVisualizer {
     private IWorldMap map;
 
     /**
-     * Initializes the MapVisualizer with an instance of map to visualize. 
+     * Initializes the evolutionWorld.MapVisualizer with an instance of map to visualize.
      * @param map
      */
     public MapVisualizer(IWorldMap map) {

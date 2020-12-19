@@ -1,5 +1,5 @@
-import java.util.Iterator;
-import java.util.Map;
+package evolutionWorld;
+
 import java.util.concurrent.TimeUnit;
 
 public class Time {
@@ -19,8 +19,8 @@ public class Time {
             System.out.println(animal.getEnergy());
         }
 
-//        for (Map.Entry<Vector2d, Animal> entry : this.map.animalsMap.entrySet()) {
-//            Animal animal = entry.getValue();
+//        for (Map.Entry<evolutionWorld.Vector2d, evolutionWorld.Animal> entry : this.map.animalsMap.entrySet()) {
+//            evolutionWorld.Animal animal = entry.getValue();
 //            animal.move();
 //            animal.reduceEnergy(1);
 //            entry.setValue(animal);

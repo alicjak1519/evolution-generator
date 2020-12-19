@@ -1,6 +1,8 @@
+package evolutionWorld;
+
 /**
  * The interface responsible for interacting with the map of the world.
- * Assumes that Vector2d and MoveDirection classes are defined.
+ * Assumes that evolutionWorld.Vector2d and evolutionWorld.MoveDirection classes are defined.
  *
  * @author apohllo
  *
