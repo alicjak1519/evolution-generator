@@ -1,4 +1,8 @@
-package evolutionWorld;
+package evolutionWorld.interfaces;
+
+import evolutionWorld.Animal;
+import evolutionWorld.MoveDirection;
+import evolutionWorld.Vector2d;
 
 /**
  * The interface responsible for interacting with the map of the world.

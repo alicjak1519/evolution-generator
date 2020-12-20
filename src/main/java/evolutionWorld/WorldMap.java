@@ -1,20 +1,20 @@
 package evolutionWorld;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
+import evolutionWorld.interfaces.IPositionChangeObserver;
+import evolutionWorld.interfaces.IWorldMap;
 
-public class WorldMap implements IWorldMap {
+import java.util.*;
+
+public class WorldMap implements IWorldMap, IPositionChangeObserver {
     private int mapHeight;
     private int mapWidth;
     private int jungleSize;
     private int maxAnimalEnergy;
     private int grassPercentage;
 
-    protected Map<Vector2d, Animal> animalsMap = new HashMap<>();
-    protected Map<Vector2d, RegularGrass> regularGrassesMap = new HashMap<>();
-    protected Map<Vector2d, JungleGrass> jungleGrassMap = new HashMap<>();
-
+    protected Map<Vector2d, LinkedList<Animal>> animalsMap = new HashMap<>();
+    protected Map<Vector2d, Grass> grassesMap = new HashMap<>();
+    public LinkedList<Animal> animalsLinkedList = new LinkedList<>();
 
     public WorldMap(int height, int width, int jungleSize, int maxAnimalEnergy, int grassPercentage) {
         this.mapHeight = height;
@@ -24,19 +24,12 @@ public class WorldMap implements IWorldMap {
         this.grassPercentage = grassPercentage;
 
         for (int i = 0; i < Math.round(this.grassPercentage * this.mapHeight * this.mapWidth / 100); i++) {
-            int randX = ThreadLocalRandom.current().nextInt(0, this.mapWidth + 1);
-            int randY = ThreadLocalRandom.current().nextInt(0, this.mapHeight + 1);
-            RegularGrass newGrass = new RegularGrass(new Vector2d(randX, randY));
-            regularGrassesMap.put(newGrass.getPosition(), newGrass);
-        }
-
-        for (int i = 0; i < this.jungleSize; i++) {
-            for (int j = 0; j < this.jungleSize; j++) {
-                int jungleGrassX = Math.round((this.mapWidth - this.jungleSize) / 2) + i + 1;
-                int jungleGrassY = Math.round((this.mapHeight - this.jungleSize) / 2) + j + 1;
-                JungleGrass newJungleGrass = new JungleGrass(new Vector2d(jungleGrassX, jungleGrassY));
-                jungleGrassMap.put(newJungleGrass.getPosition(), newJungleGrass);
+            for (int j = 0; j < 5; j++) {
+                Grass newJungleGrass = new Grass(getRandomJunglePosition());
+                grassesMap.put(newJungleGrass.getPosition(), newJungleGrass);
             }
+            Grass newNonJungleGrass = new Grass(getRandomNonJunglePosition());
+            grassesMap.put(newNonJungleGrass.getPosition(), newNonJungleGrass);
         }
     }
 
@@ -52,93 +45,204 @@ public class WorldMap implements IWorldMap {
         return maxAnimalEnergy;
     }
 
-    public Map<Vector2d, Animal> getAnimalsMap(){
+    public Map<Vector2d, LinkedList<Animal>> getAnimalsMap() {
         return animalsMap;
     }
 
-    public Map<Vector2d, JungleGrass> getJungleGrassMap(){
-        return jungleGrassMap;
+    public Map<Vector2d, Grass> getGrassesMap() {
+        return grassesMap;
     }
 
-    public Map<Vector2d, RegularGrass> getRegularGrassesMap(){
-        return regularGrassesMap;
+    public void removeGrass(Grass grass) {
+        this.grassesMap.remove(grass);
     }
 
-    public int getJungleSize() {
-        return this.jungleSize;
+    public Vector2d getRandomJunglePosition() {
+        Random random = new Random();
+        int randX = Math.round(random.nextInt((mapWidth + jungleSize) / 2) + (mapWidth - jungleSize) / 2f);
+        int randY = Math.round(random.nextInt((mapHeight + jungleSize) / 2) + (mapHeight - jungleSize) / 2f);
+        return new Vector2d(randX, randY);
     }
 
-    public void removeRegularGrass(RegularGrass regularGrass){
-        this.regularGrassesMap.remove(regularGrass);
+    public Vector2d getRandomNonJunglePosition() {
+        Random random = new Random();
+        int randX = mapWidth / 2;
+        int randY = mapHeight / 2;
+        while (randX > ((mapWidth - jungleSize) / 2f) &&
+                randX < (mapWidth + jungleSize) / 2f &&
+                randY > ((mapHeight - jungleSize) / 2f) &&
+                randY < (mapHeight + jungleSize) / 2f) {
+            randX = Math.round(random.nextInt(mapWidth));
+            randY = Math.round(random.nextInt(mapHeight));
+        }
+
+        return new Vector2d(randX, randY);
     }
 
     @Override
     public boolean canMoveTo(Vector2d position) {
-        return false;
+        return true;
     }
 
     @Override
     public boolean place(Animal animal) {
-        this.animalsMap.put(animal.getPosition(), animal);
-        return false;
+        addAnimal(animal);
+        animalsLinkedList.add(animal);
+        animal.addObserver(this);
+        return true;
     }
 
     @Override
     public void run(MoveDirection[] directions) {
-
+        for (int i = 0; i < directions.length; i++) {
+            animalsLinkedList.get(i % animalsLinkedList.size()).move(directions[i]);
+        }
     }
 
-    @Override
-    public boolean isOccupied(Vector2d position) {
-        for (Map.Entry<Vector2d, Animal> entry : this.animalsMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return true;
-            }
-        }
-
-        for (Map.Entry<Vector2d, RegularGrass> entry : this.regularGrassesMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return true;
-            }
-        }
-
-        for (Map.Entry<Vector2d, JungleGrass> entry : this.jungleGrassMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return true;
-            }
-        }
-
-        return false;
+    public boolean place(Grass grass) {
+        grassesMap.put(grass.getPosition(), grass);
+        return true;
     }
 
-    @Override
-    public Object objectAt(Vector2d position) {
-        for (Map.Entry<Vector2d, Animal> entry : this.animalsMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return entry.getValue();
+    public void plantNewGrasses() {
+        Grass jungleGrass = new Grass(getRandomJunglePosition());
+        place(jungleGrass);
+        Grass nonJungleGrass = new Grass(getRandomNonJunglePosition());
+        place(nonJungleGrass);
+    }
+
+    public void eat() {
+        LinkedList<Grass> grassesToEat = new LinkedList<>();
+
+        for (Grass grass : grassesMap.values()) {
+            LinkedList<Animal> animalsReadyToEatGrass = animalsMap.get(grass.getPosition());
+            if (animalsReadyToEatGrass != null) {
+                if (animalsReadyToEatGrass.size() > 0) {
+                    Animal theStrongestAnimal = Collections.max(animalsReadyToEatGrass, Comparator.comparing(Animal::getEnergy));
+                    animalsReadyToEatGrass.removeIf(animal -> animal.getEnergy() < theStrongestAnimal.getEnergy());
+                    for (Animal animal : animalsReadyToEatGrass) {
+                        animal.reduceEnergy(-1 / animalsReadyToEatGrass.size());
+                        grassesToEat.add(grass);
+                    }
+                }
             }
         }
-        for (Map.Entry<Vector2d, RegularGrass> entry : this.regularGrassesMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return entry.getValue();
+        for (Grass grass : grassesToEat) {
+            grassesMap.remove(grass.getPosition());
+        }
+    }
+
+    public void breed(int energyThreshold) {
+        LinkedList<Animal> children = new LinkedList<>();
+        for (Vector2d position : animalsMap.keySet()
+        ) {
+            LinkedList<Animal> parents = animalsMap.get(position);
+            if (parents.size() > 1) {
+                parents.sort((o1, o2) -> o2.getEnergy() - o1.getEnergy());
+                Animal mum = parents.get(0);
+                Animal dad = parents.get(1);
+                if (dad.getEnergy() >= energyThreshold) {
+                    Vector2d childPosition = findFreeAdjacentPosition(dad.getPosition());
+                    createChild(children, mum, dad, childPosition);
+                }
             }
         }
-        for (Map.Entry<Vector2d, JungleGrass> entry : this.jungleGrassMap.entrySet()) {
-            Vector2d key = entry.getKey();
-            if (key.x == position.x && key.y == position.y) {
-                return entry.getValue();
+        children.forEach(c -> addAnimal(c));
+    }
+
+    private void createChild(LinkedList<Animal> children, Animal mum, Animal dad, Vector2d childPosition) {
+        if (childPosition != null) {
+            Animal child = new Animal(this, childPosition, mum.getEnergy() / 4 + dad.getEnergy() / 4);
+            mum.reduceEnergy(mum.getEnergy() / 4);
+            dad.reduceEnergy(dad.getEnergy() / 4);
+            children.add(child);
+        }
+    }
+
+    public Vector2d findFreeAdjacentPosition(Vector2d parentPosition) {
+        for (int i = parentPosition.x - 1; i < parentPosition.x + 1; i++) {
+            for (int j = parentPosition.y - 1; j < parentPosition.y + 1; j++) {
+                if (i != parentPosition.x || j != parentPosition.y) {
+                    if (!isOccupied(new Vector2d(i, j))) {
+                        return new Vector2d(i, j);
+                    }
+                }
             }
         }
         return null;
     }
 
+    @Override
+    public boolean isOccupied(Vector2d position) {
+        return objectAt(position) != null;
+    }
+
+    @Override
+    public Object objectAt(Vector2d position) {
+        LinkedList<Animal> animalsList = animalsMap.get(position);
+        if (animalsList == null) {
+            return grassesMap.get(position);
+        } else if (animalsList.isEmpty()) {
+            return grassesMap.get(position);
+        } else {
+            return animalsList.getFirst();
+        }
+    }
+
+    private void addAnimal(Animal animal) {
+        LinkedList<Animal> animalsList = animalsMap.get(animal.getPosition());
+        if (animalsList == null) {
+            LinkedList<Animal> newAnimalsList = new LinkedList<>();
+            newAnimalsList.add(animal);
+            animalsMap.put(animal.getPosition(), newAnimalsList);
+        } else {
+            animalsList.add(animal);
+        }
+    }
+
+    private void removeAnimal(Animal animal, Vector2d position) {
+        LinkedList<Animal> animalsList = animalsMap.get(position);
+        if (animalsList == null) {
+            throw new IllegalArgumentException();
+        } else {
+            animalsList.remove(animal);
+            if (animalsList.size() == 0) {
+                animalsMap.remove(position);
+            }
+        }
+    }
+
+    public void removeDeadAnimals() {
+        Map<Vector2d, LinkedList<Animal>> newAnimalsMap = new HashMap<>();
+        LinkedList<Animal> newAnimalsLinkedList = new LinkedList<>();
+
+        for (Animal animal : animalsLinkedList) {
+            Vector2d position = animal.getPosition();
+            if (!animal.isDead()) {
+                LinkedList<Animal> animalsList = newAnimalsMap.get(position);
+                if (animalsList == null) {
+                    LinkedList<Animal> newAnimalsList = new LinkedList<>();
+                    newAnimalsList.add(animal);
+                    newAnimalsMap.put(position, newAnimalsList);
+                } else if (animalsList != null) {
+                    animalsList.add(animal);
+                }
+                newAnimalsLinkedList.add(animal);
+            }
+        }
+        animalsMap = newAnimalsMap;
+        animalsLinkedList = newAnimalsLinkedList;
+    }
+
+    @Override
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Object object) {
+        if (canMoveTo(newPosition)) {
+            removeAnimal((Animal) object, oldPosition);
+            addAnimal((Animal) object);
+        }
+    }
+
     public String toString() {
         return new MapVisualizer(this).draw(new Vector2d(0, 0), new Vector2d(this.mapWidth, this.mapHeight));
     }
-
 }

@@ -1,25 +1,37 @@
 package evolutionWorld;
 
+import evolutionWorld.interfaces.IPositionChangeObserver;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Animal {
+public class Animal implements IPositionChangeObserver {
     private WorldMap map;
-    private List<MoveDirection> genes;
-    private MoveDirection moveDirection;
+    private List<MapDirection> genes;
+    private MapDirection mapDirection;
+    public ArrayList<IPositionChangeObserver> observers = new ArrayList<>();
     private Vector2d position;
     private Integer energy;
 
-    public Animal(WorldMap map, ArrayList<MoveDirection> genes) {
+    public Animal(WorldMap map) {
         this.map = map;
-        this.genes = genes;
-        this.moveDirection = genes.get((new Random()).nextInt(this.genes.size()));
+        this.genes = generateGenes();
+        this.mapDirection = genes.get((new Random()).nextInt(this.genes.size()));
         int randX = ThreadLocalRandom.current().nextInt(0, this.map.getMapWidth() + 1);
         int randY = ThreadLocalRandom.current().nextInt(0, this.map.getMapHeight() + 1);
         this.position = new Vector2d(randX, randY);
         this.energy = ThreadLocalRandom.current().nextInt(0, this.map.getMaxAnimalEnergy() + 1);
+    }
+
+    public Animal(WorldMap map, Vector2d position, int energy){
+        this.map = map;
+        this.genes = generateGenes();;
+        this.mapDirection = genes.get((new Random()).nextInt(this.genes.size()));
+        this.position = position;
+        this.energy = energy;
     }
 
     public Vector2d getPosition() {
@@ -30,62 +42,85 @@ public class Animal {
         return energy;
     }
 
-    public void eatJungleGrass() {
-        this.energy++;
-    }
-
-    public void eatRegularGrass(RegularGrass regularGrass) {
-        this.map.removeRegularGrass(regularGrass);
-        this.energy++;
-    }
-
-    public void reduceEnergy(int reducedEnergy){
+    public void reduceEnergy(int reducedEnergy) {
         this.energy = this.energy - reducedEnergy;
     }
 
-    public void move() {
-        Vector2d oldPosition = this.position;
-        switch (this.moveDirection) {
-            case NORTH:
-                this.position = position.add(new Vector2d(0, 1));
+    public boolean isDead(){
+        return energy <= 0;
+    }
+
+    public void move(MoveDirection moveDirection) {
+        switch (moveDirection) {
+            case RIGHT:
+                mapDirection = mapDirection.next();
                 break;
-            case NORTHEAST:
-                this.position = position.add(new Vector2d(1, 1));
-            case EAST:
-                this.position = position.add(new Vector2d(1, 0));
+            case LEFT:
+                mapDirection = mapDirection.previous();
                 break;
-            case SOUTHEAST:
-                this.position = position.add(new Vector2d(1, -1));
-            case SOUTH:
-                this.position = position.add(new Vector2d(0, -1));
+            case FORWARD:
+                if (map.canMoveTo(position.add(mapDirection.toUnitVector()))) {
+                    Vector2d old = position;
+                    position = position.add(mapDirection.toUnitVector());
+                    position = new Vector2d(position.x % map.getMapWidth(), position.y % map.getMapWidth());
+                    positionChanged(old, position, this);
+                }
                 break;
-            case SOUTHWEST:
-                this.position = position.add(new Vector2d(-1, -1));
-            case WEST:
-                this.position = position.add(new Vector2d(-1, 0));
-                break;
-            case NORTHWEST:
-                this.position = position.add(new Vector2d(-1, 1));
+            case BACKWARD:
+                if (map.canMoveTo(position.subtract(mapDirection.toUnitVector()))) {
+                    Vector2d old = position;
+                    position = position.subtract(mapDirection.toUnitVector());
+                    position = new Vector2d(position.x % map.getMapWidth(), position.y % map.getMapWidth());
+                    positionChanged(old, position, this);
+                }
                 break;
         }
+        mapDirection = genes.get((new Random()).nextInt(genes.size()));
+    }
 
-        this.position = new Vector2d(this.position.x % this.map.getMapWidth(), this.position.y % this.map.getMapWidth());
-
-        if (this.map.regularGrassesMap.containsKey(this.position)){
-            this.eatRegularGrass(this.map.regularGrassesMap.get(this.position));
+    private ArrayList<MapDirection> generateGenes(){
+        ArrayList<MapDirection> animalGenes = new ArrayList<>();
+        for (int i = 0; i < 32; i++) {
+            animalGenes.add(MapDirection.randomMapDirection());
         }
+        return animalGenes;
+    }
 
-        if (this.map.jungleGrassMap.containsKey(this.position)){
-            this.eatJungleGrass();
+    public void addObserver(IPositionChangeObserver observer) {
+        observers.add(observer);
+    }
+
+    void removeObserver(IPositionChangeObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void positionChanged(Vector2d oldPosition, Vector2d newPosition, Object object) {
+        for (IPositionChangeObserver observer : observers) {
+            observer.positionChanged(oldPosition, newPosition, object);
         }
+    }
 
-        this.moveDirection = genes.get((new Random()).nextInt(this.genes.size()));
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Animal animal = (Animal) o;
+        return Objects.equals(map, animal.map) &&
+                Objects.equals(genes, animal.genes) &&
+                mapDirection == animal.mapDirection &&
+                Objects.equals(observers, animal.observers) &&
+                Objects.equals(position, animal.position) &&
+                Objects.equals(energy, animal.energy);
+    }
 
-        this.map.animalsMap.remove(oldPosition);
-        this.map.animalsMap.put(this.position, this);
+    @Override
+    public int hashCode() {
+        return Objects.hash(map, genes, mapDirection, observers, position, energy);
     }
 
     public String toString() {
         return "o";
     }
+
 }

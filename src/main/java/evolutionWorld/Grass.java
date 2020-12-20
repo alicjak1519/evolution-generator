@@ -1,6 +1,8 @@
 package evolutionWorld;
 
-public class Grass {
+import evolutionWorld.interfaces.IMapElement;
+
+public class Grass implements IMapElement {
     private Vector2d position;
 
     public Grass(Vector2d position) {
