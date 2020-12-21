@@ -12,12 +12,8 @@ public class Time {
     }
 
     public void runDay() {
-        for (Animal animal : map.animalsLinkedList
-        ) {
-            animal.move(MoveDirection.FORWARD);
-            animal.reduceEnergy(moveEnergy);
-            System.out.println(animal.getEnergy());
-        }
+        map.animalsLinkedList.forEach(a->a.move(MoveDirection.FORWARD));
+        map.animalsLinkedList.forEach(a->a.reduceEnergy(moveEnergy));
         map.eat(plantEnergy);
         map.plantNewGrasses();
         map.breed(5);

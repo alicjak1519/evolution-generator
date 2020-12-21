@@ -3,33 +3,32 @@ package evolutionWorld;
 import evolutionWorld.interfaces.IPositionChangeObserver;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Animal implements IPositionChangeObserver {
     private WorldMap map;
-    private List<MapDirection> genes;
+    private Genotype genotype;
     private MapDirection mapDirection;
     public ArrayList<IPositionChangeObserver> observers = new ArrayList<>();
     private Vector2d position;
     private Integer energy;
+    private Integer childrenNumber = 0;
 
     public Animal(WorldMap map) {
         this.map = map;
-        this.genes = generateGenes();
-        this.mapDirection = genes.get((new Random()).nextInt(this.genes.size()));
+        this.genotype = new Genotype();
+        this.mapDirection = MapDirection.getDirectionById(genotype.getRandomGen());
         int randX = ThreadLocalRandom.current().nextInt(0, this.map.getMapWidth() + 1);
         int randY = ThreadLocalRandom.current().nextInt(0, this.map.getMapHeight() + 1);
         this.position = new Vector2d(randX, randY);
         this.energy = ThreadLocalRandom.current().nextInt(0, this.map.getStartAnimalEnergy() + 1);
     }
 
-    public Animal(WorldMap map, Vector2d position, int energy){
+    public Animal(WorldMap map, Vector2d position, int energy) {
         this.map = map;
-        this.genes = generateGenes();;
-        this.mapDirection = genes.get((new Random()).nextInt(this.genes.size()));
+        this.genotype = new Genotype();
+        this.mapDirection = MapDirection.getDirectionById(genotype.getRandomGen());
         this.position = position;
         this.energy = energy;
     }
@@ -42,11 +41,19 @@ public class Animal implements IPositionChangeObserver {
         return energy;
     }
 
+    public int getChildrenNumber() {
+        return childrenNumber;
+    }
+
+    public Genotype getGenotype() {
+        return genotype;
+    }
+
     public void reduceEnergy(int reducedEnergy) {
         this.energy = this.energy - reducedEnergy;
     }
 
-    public boolean isDead(){
+    public boolean isDead() {
         return energy <= 0;
     }
 
@@ -75,15 +82,11 @@ public class Animal implements IPositionChangeObserver {
                 }
                 break;
         }
-        mapDirection = genes.get((new Random()).nextInt(genes.size()));
+        mapDirection = MapDirection.getDirectionById(genotype.getRandomGen());
     }
 
-    private ArrayList<MapDirection> generateGenes(){
-        ArrayList<MapDirection> animalGenes = new ArrayList<>();
-        for (int i = 0; i < 32; i++) {
-            animalGenes.add(MapDirection.randomMapDirection());
-        }
-        return animalGenes;
+    public void incrementChildrenNumber() {
+        childrenNumber++;
     }
 
     public void addObserver(IPositionChangeObserver observer) {
@@ -107,7 +110,7 @@ public class Animal implements IPositionChangeObserver {
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
         return Objects.equals(map, animal.map) &&
-                Objects.equals(genes, animal.genes) &&
+                Objects.equals(genotype, animal.genotype) &&
                 mapDirection == animal.mapDirection &&
                 Objects.equals(observers, animal.observers) &&
                 Objects.equals(position, animal.position) &&
@@ -116,7 +119,7 @@ public class Animal implements IPositionChangeObserver {
 
     @Override
     public int hashCode() {
-        return Objects.hash(map, genes, mapDirection, observers, position, energy);
+        return Objects.hash(map, genotype, mapDirection, observers, position, energy);
     }
 
     public String toString() {

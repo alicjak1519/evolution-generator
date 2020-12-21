@@ -12,20 +12,9 @@ hs_err_pid*
 ##############################
 ## Gradle
 ##############################
-bin/
-build/
-.gradle
-.gradletasknamecache
-gradle-app.setting
-!gradle-wrapper.jar
-
 .gradle
 **/build/
 !src/**/build/
-gradlew*
-settings.gradle
-build.gradle
-gradle/
 
 # Ignore Gradle GUI config
 gradle-app.setting

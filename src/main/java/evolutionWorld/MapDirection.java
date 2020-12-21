@@ -19,6 +19,10 @@ public enum MapDirection {
         return Arrays.asList(MapDirection.values()).indexOf(this);
     }
 
+    public static MapDirection getDirectionById(int id) {
+        return Arrays.asList(MapDirection.values()).get(id);
+    }
+
     private static final List<MapDirection> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();

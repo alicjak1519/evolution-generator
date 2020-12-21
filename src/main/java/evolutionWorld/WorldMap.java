@@ -47,6 +47,10 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
         return startAnimalEnergy;
     }
 
+    public int getAliveAnimalsNumber() {
+        return animalsLinkedList.size();
+    }
+
     public Map<Vector2d, LinkedList<Animal>> getAnimalsMap() {
         return animalsMap;
     }
@@ -154,6 +158,8 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
             mum.reduceEnergy(mum.getEnergy() / 4);
             dad.reduceEnergy(dad.getEnergy() / 4);
             children.add(child);
+            mum.incrementChildrenNumber();
+            dad.incrementChildrenNumber();
         }
     }
 
@@ -238,9 +244,5 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
             removeAnimal((Animal) object, oldPosition);
             addAnimal((Animal) object);
         }
-    }
-
-    public String toString() {
-        return new MapVisualizer(this).draw(new Vector2d(0, 0), new Vector2d(this.mapWidth, this.mapHeight));
     }
 }

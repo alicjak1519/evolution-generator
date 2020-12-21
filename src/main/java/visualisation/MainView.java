@@ -14,30 +14,44 @@ import java.io.FileReader;
 public class MainView extends VBox {
 
     private GridPane gridPane;
+    private Menu menu;
+    private Statistics statistics;
+
     private WorldMap worldMap;
     private Time worldTime;
     private Simulator simulator;
+    private int epochNumber = 0;
 
     public MainView() throws FileNotFoundException {
+        WorldParameters parameters = getWorldParameters();
+        worldMap = createWorldMap(parameters);
+
         gridPane = new GridPane();
         gridPane.setHgap(5);
         gridPane.setVgap(5);
-        Menu menu = new Menu(this);
-        this.getChildren().addAll(gridPane, menu);
+        menu = new Menu(this);
+        statistics = new Statistics(this, worldMap);
+        this.getChildren().addAll(gridPane, menu, statistics);
 
-        Gson gson = new Gson();
-        JsonReader reader = new JsonReader(new FileReader("src/main/resources/parameters.json"));
-        WorldParameters parameters = gson.fromJson(reader, WorldParameters.class);
+        worldTime = new Time(worldMap, parameters.getMoveEnergy(), parameters.getPlantEnergy());
+        simulator = new Simulator(this, worldTime);
+    }
 
-        worldMap = new WorldMap(parameters.getHeight(), parameters.getWidth(), parameters.getJungleRatio(), parameters.getStartEnergy());
+    private WorldMap createWorldMap(WorldParameters parameters) {
+        WorldMap worldMap = new WorldMap(parameters.getHeight(), parameters.getWidth(), parameters.getJungleRatio(), parameters.getStartEnergy());
 
-        for (int i = 0; i < 50; i++) {
+        for (int i = 0; i < Math.max(parameters.getHeight(), parameters.getWidth()) * 5; i++) {
             Animal newAnimal = new Animal(worldMap);
             worldMap.place(newAnimal);
         }
 
-        worldTime = new Time(worldMap, parameters.getMoveEnergy(), parameters.getPlantEnergy());
-        simulator = new Simulator(this, worldTime);
+        return worldMap;
+    }
+
+    private WorldParameters getWorldParameters() throws FileNotFoundException {
+        Gson gson = new Gson();
+        JsonReader reader = new JsonReader(new FileReader("src/main/resources/parameters.json"));
+        return gson.fromJson(reader, WorldParameters.class);
     }
 
     public Simulator getSimulator() {
@@ -45,7 +59,9 @@ public class MainView extends VBox {
     }
 
     public void draw() {
+        epochNumber++;
         drawActualMap(worldMap);
+        statistics.update(epochNumber);
     }
 
     public void drawActualMap(WorldMap worldMap) {
@@ -66,13 +82,13 @@ public class MainView extends VBox {
     public String colorAnimalEnergy(int energy) {
         int maxEnergy = worldMap.getStartAnimalEnergy();
         if (energy >= 0.8 * maxEnergy) {
-            return "ff4800";
+            return "370617";
         } else if (energy >= 0.5 * maxEnergy) {
-            return "ff6d00";
+            return "d00000";
         } else if (energy >= 0.3 * maxEnergy) {
-            return "ff9e00";
+            return "f48c06";
         } else {
-            return "ffb133";
+            return "ffba08";
         }
     }
 }
