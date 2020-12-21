@@ -23,7 +23,7 @@ public class Animal implements IPositionChangeObserver {
         int randX = ThreadLocalRandom.current().nextInt(0, this.map.getMapWidth() + 1);
         int randY = ThreadLocalRandom.current().nextInt(0, this.map.getMapHeight() + 1);
         this.position = new Vector2d(randX, randY);
-        this.energy = ThreadLocalRandom.current().nextInt(0, this.map.getMaxAnimalEnergy() + 1);
+        this.energy = ThreadLocalRandom.current().nextInt(0, this.map.getStartAnimalEnergy() + 1);
     }
 
     public Animal(WorldMap map, Vector2d position, int energy){

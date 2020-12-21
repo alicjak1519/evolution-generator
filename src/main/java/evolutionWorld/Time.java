@@ -2,23 +2,25 @@ package evolutionWorld;
 
 public class Time {
     private WorldMap map;
-    private int dayDuration;
+    private int moveEnergy;
+    private int plantEnergy;
 
-    public Time(WorldMap map, int dayDuration) {
+    public Time(WorldMap map, int moveEnergy, int plantEnergy) {
         this.map = map;
-        this.dayDuration = dayDuration;
+        this.moveEnergy = moveEnergy;
+        this.plantEnergy = plantEnergy;
     }
 
     public void runDay() {
-        map.removeDeadAnimals();
         for (Animal animal : map.animalsLinkedList
         ) {
             animal.move(MoveDirection.FORWARD);
-            animal.reduceEnergy(1);
+            animal.reduceEnergy(moveEnergy);
             System.out.println(animal.getEnergy());
         }
-        map.eat();
+        map.eat(plantEnergy);
         map.plantNewGrasses();
         map.breed(5);
+        map.removeDeadAnimals();
     }
 }

@@ -9,22 +9,24 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
     private int mapHeight;
     private int mapWidth;
     private int jungleSize;
-    private int maxAnimalEnergy;
+    private int jungleRatio;
+    private int startAnimalEnergy;
     private int grassPercentage;
 
     protected Map<Vector2d, LinkedList<Animal>> animalsMap = new HashMap<>();
     protected Map<Vector2d, Grass> grassesMap = new HashMap<>();
     public LinkedList<Animal> animalsLinkedList = new LinkedList<>();
 
-    public WorldMap(int height, int width, int jungleSize, int maxAnimalEnergy, int grassPercentage) {
+    public WorldMap(int height, int width, int jungleRatio, int startAnimalEnergy) {
         this.mapHeight = height;
         this.mapWidth = width;
-        this.jungleSize = jungleSize;
-        this.maxAnimalEnergy = maxAnimalEnergy;
-        this.grassPercentage = grassPercentage;
+        this.jungleSize = Math.min(height, width) / 3;
+        this.jungleRatio = jungleRatio;
+        this.startAnimalEnergy = startAnimalEnergy;
+        this.grassPercentage = 20;
 
         for (int i = 0; i < Math.round(this.grassPercentage * this.mapHeight * this.mapWidth / 100); i++) {
-            for (int j = 0; j < 5; j++) {
+            for (int j = 0; j < this.jungleRatio; j++) {
                 Grass newJungleGrass = new Grass(getRandomJunglePosition());
                 grassesMap.put(newJungleGrass.getPosition(), newJungleGrass);
             }
@@ -41,8 +43,8 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
         return mapHeight;
     }
 
-    public int getMaxAnimalEnergy() {
-        return maxAnimalEnergy;
+    public int getStartAnimalEnergy() {
+        return startAnimalEnergy;
     }
 
     public Map<Vector2d, LinkedList<Animal>> getAnimalsMap() {
@@ -53,14 +55,10 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
         return grassesMap;
     }
 
-    public void removeGrass(Grass grass) {
-        this.grassesMap.remove(grass);
-    }
-
     public Vector2d getRandomJunglePosition() {
         Random random = new Random();
-        int randX = Math.round(random.nextInt((mapWidth + jungleSize) / 2) + (mapWidth - jungleSize) / 2f);
-        int randY = Math.round(random.nextInt((mapHeight + jungleSize) / 2) + (mapHeight - jungleSize) / 2f);
+        int randX = Math.round(random.nextInt(jungleSize) + (mapWidth - jungleSize) / 2f);
+        int randY = Math.round(random.nextInt(jungleSize) + (mapHeight - jungleSize) / 2f);
         return new Vector2d(randX, randY);
     }
 
@@ -111,7 +109,7 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
         place(nonJungleGrass);
     }
 
-    public void eat() {
+    public void eat(int plantEnergy) {
         LinkedList<Grass> grassesToEat = new LinkedList<>();
 
         for (Grass grass : grassesMap.values()) {
@@ -121,7 +119,7 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
                     Animal theStrongestAnimal = Collections.max(animalsReadyToEatGrass, Comparator.comparing(Animal::getEnergy));
                     animalsReadyToEatGrass.removeIf(animal -> animal.getEnergy() < theStrongestAnimal.getEnergy());
                     for (Animal animal : animalsReadyToEatGrass) {
-                        animal.reduceEnergy(-1 / animalsReadyToEatGrass.size());
+                        animal.reduceEnergy(-plantEnergy / animalsReadyToEatGrass.size());
                         grassesToEat.add(grass);
                     }
                 }
@@ -147,7 +145,7 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
                 }
             }
         }
-        children.forEach(c -> addAnimal(c));
+        children.forEach(this::addAnimal);
     }
 
     private void createChild(LinkedList<Animal> children, Animal mum, Animal dad, Vector2d childPosition) {
