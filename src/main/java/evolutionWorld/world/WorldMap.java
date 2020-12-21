@@ -16,10 +16,12 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
     private int jungleRatio;
     private int startAnimalEnergy;
     private int grassPercentage;
+    private int epochNumber;
 
     protected Map<Vector2d, LinkedList<Animal>> animalsMap = new HashMap<>();
     protected Map<Vector2d, Grass> grassesMap = new HashMap<>();
     public LinkedList<Animal> animalsLinkedList = new LinkedList<>();
+    public LinkedList<Integer> epochOfAnimalsDeath = new LinkedList<>();
 
     public WorldMap(int height, int width, int jungleRatio, int startAnimalEnergy) {
         this.mapHeight = height;
@@ -53,6 +55,14 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
 
     public int getAliveAnimalsNumber() {
         return animalsLinkedList.size();
+    }
+
+    public int getEpochNumber() {
+        return epochNumber;
+    }
+
+    public LinkedList<Integer> getEpochOfAnimalsDeath() {
+        return epochOfAnimalsDeath;
     }
 
     public Map<Vector2d, LinkedList<Animal>> getAnimalsMap() {
@@ -115,6 +125,10 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
         place(jungleGrass);
         Grass nonJungleGrass = new Grass(getRandomNonJunglePosition());
         place(nonJungleGrass);
+    }
+
+    public void incrementEpochNumber(){
+        epochNumber++;
     }
 
     public void eat(int plantEnergy) {
@@ -238,6 +252,8 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
                     animalsList.add(animal);
                 }
                 newAnimalsLinkedList.add(animal);
+            } else {
+                epochOfAnimalsDeath.add(epochNumber);
             }
         }
         animalsMap = newAnimalsMap;

@@ -8,6 +8,7 @@ import javafx.scene.text.Text;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 public class Statistics extends Text {
@@ -28,20 +29,20 @@ public class Statistics extends Text {
         this.worldMap = worldMap;
     }
 
-    public void update(int epochNumber) {
-        this.epochNumber = epochNumber;
+    public void update() {
+        epochNumber = worldMap.getEpochNumber();
         aliveAnimalsNumber = worldMap.getAliveAnimalsNumber();
         grassesNumber = worldMap.getGrassesMap().size();
         dominatingGenotype = getDominatingGenotype();
         avgEnergy = calcAvgEnergy();
-        avgLifeLength = 0;
+        avgLifeLength = worldMap.getEpochOfAnimalsDeath().stream().mapToDouble(e->e).average().orElse(0.0);
         avgChildrenNumber = calcAvgChildrenNumber();
 
         this.setText(String.format(
                 "Epoch number: %d\n" +
                         "Alive animals number: %d\n" +
                         "Grasses number: %d\n" +
-                        "Dominating genotype: %s\n" +
+                        "Dominating genotype: \n%s\n" +
                         "Average energy: %.2f\n" +
                         "Average life length: %.2f\n" +
                         "Average children number: %.2f",

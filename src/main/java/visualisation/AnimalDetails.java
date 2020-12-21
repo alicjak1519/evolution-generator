@@ -18,14 +18,12 @@ public class AnimalDetails extends Text {
     public void update(Animal animal) {
         this.setText(String.format(
                 "------------------\n" +
-                        "Selected animal's genotype: %s\n" +
+                        "Selected animal's genotype: \n%s\n" +
                         "Selected animal's children number: %d\n" +
                         "Selected animal's descendants number: %d\n" +
-                        "Selected animal's death epoch: %d",
-                animal.getGenotype(),
+                        animal.getGenotype(),
                 animal.getChildrenNumber(),
-                animal.getDescendantsNumber(),
-                0));
+                animal.getDescendantsNumber()));
     }
 
 }

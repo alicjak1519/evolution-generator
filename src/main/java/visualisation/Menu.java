@@ -34,12 +34,10 @@ public class Menu extends ToolBar {
     }
 
     private void handleStart(ActionEvent actionEvent) {
-        System.out.println("Start pressed");
         this.mainView.getSimulator().start();
     }
 
     private void handleStop(ActionEvent actionEvent) {
-        System.out.println("Stop pressed");
         this.mainView.getSimulator().stop();
     }
 

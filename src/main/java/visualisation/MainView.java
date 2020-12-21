@@ -24,12 +24,11 @@ public class MainView extends VBox {
     private WorldMap worldMap;
     private Time worldTime;
     private Simulator simulator;
-    private int epochNumber = 0;
+//    private int epochNumber = 0;
 
     public MainView() throws FileNotFoundException {
         WorldParameters parameters = getWorldParameters();
         worldMap = createWorldMap(parameters);
-
         gridPane = new GridPane();
         gridPane.setHgap(5);
         gridPane.setVgap(5);
@@ -49,7 +48,6 @@ public class MainView extends VBox {
             Animal newAnimal = new Animal(worldMap);
             worldMap.place(newAnimal);
         }
-
         return worldMap;
     }
 
@@ -68,9 +66,9 @@ public class MainView extends VBox {
     }
 
     public void draw() {
-        epochNumber++;
+        worldMap.incrementEpochNumber();
         drawActualMap(worldMap);
-        statistics.update(epochNumber);
+        statistics.update();
     }
 
     public void drawActualMap(WorldMap worldMap) {
