@@ -1,4 +1,4 @@
-package evolutionWorld;
+package evolutionWorld.classes;
 
 public enum MoveDirection {
     FORWARD,

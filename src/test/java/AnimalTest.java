@@ -1,5 +1,5 @@
-//import evolutionWorld.Animal;
-//import evolutionWorld.WorldMap;
+//import evolutionWorld.classes.Animal;
+//import evolutionWorld.world.WorldMap;
 //import org.junit.Test;
 //
 //

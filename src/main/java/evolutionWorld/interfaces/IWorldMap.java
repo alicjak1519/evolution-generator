@@ -1,12 +1,12 @@
 package evolutionWorld.interfaces;
 
-import evolutionWorld.Animal;
-import evolutionWorld.MoveDirection;
-import evolutionWorld.Vector2d;
+import evolutionWorld.classes.Animal;
+import evolutionWorld.classes.MoveDirection;
+import evolutionWorld.classes.Vector2d;
 
 /**
  * The interface responsible for interacting with the map of the world.
- * Assumes that evolutionWorld.Vector2d and evolutionWorld.MoveDirection classes are defined.
+ * Assumes that evolutionWorld.classes.Vector2d and evolutionWorld.classes.MoveDirection classes are defined.
  *
  * @author apohllo
  *

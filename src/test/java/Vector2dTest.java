@@ -1,4 +1,4 @@
-import evolutionWorld.Vector2d;
+import evolutionWorld.classes.Vector2d;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

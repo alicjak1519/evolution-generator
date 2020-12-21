@@ -3,6 +3,6 @@
   "height": 20,
   "startEnergy": 100,
   "moveEnergy": 5,
-  "plantEnergy": 10,
-  "jungleRatio": 5
+  "plantEnergy": 100,
+  "jungleRatio": 15
 }

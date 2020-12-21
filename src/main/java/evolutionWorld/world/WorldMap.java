@@ -1,5 +1,9 @@
-package evolutionWorld;
+package evolutionWorld.world;
 
+import evolutionWorld.classes.Animal;
+import evolutionWorld.classes.Grass;
+import evolutionWorld.classes.MoveDirection;
+import evolutionWorld.classes.Vector2d;
 import evolutionWorld.interfaces.IPositionChangeObserver;
 import evolutionWorld.interfaces.IWorldMap;
 
@@ -159,7 +163,9 @@ public class WorldMap implements IWorldMap, IPositionChangeObserver {
             dad.reduceEnergy(dad.getEnergy() / 4);
             children.add(child);
             mum.incrementChildrenNumber();
+            mum.addChild(child);
             dad.incrementChildrenNumber();
+            dad.addChild(child);
         }
     }
 

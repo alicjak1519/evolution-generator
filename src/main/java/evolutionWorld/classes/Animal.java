@@ -1,8 +1,10 @@
-package evolutionWorld;
+package evolutionWorld.classes;
 
 import evolutionWorld.interfaces.IPositionChangeObserver;
+import evolutionWorld.world.WorldMap;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -14,6 +16,7 @@ public class Animal implements IPositionChangeObserver {
     private Vector2d position;
     private Integer energy;
     private Integer childrenNumber = 0;
+    private LinkedList<Animal> childrenList = new LinkedList<>();
 
     public Animal(WorldMap map) {
         this.map = map;
@@ -89,11 +92,26 @@ public class Animal implements IPositionChangeObserver {
         childrenNumber++;
     }
 
+    public void addChild(Animal child) {
+        childrenList.add(child);
+    }
+
+    public int getDescendantsNumber() {
+        if (childrenList.isEmpty()) {
+            return 0;
+        } else {
+            return childrenList.size() + childrenList
+                    .stream()
+                    .map(Animal::getDescendantsNumber)
+                    .reduce(0, Integer::sum);
+        }
+    }
+
     public void addObserver(IPositionChangeObserver observer) {
         observers.add(observer);
     }
 
-    void removeObserver(IPositionChangeObserver observer) {
+    public void removeObserver(IPositionChangeObserver observer) {
         observers.remove(observer);
     }
 

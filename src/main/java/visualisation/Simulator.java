@@ -1,6 +1,6 @@
 package visualisation;
 
-import evolutionWorld.Time;
+import evolutionWorld.world.Time;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;

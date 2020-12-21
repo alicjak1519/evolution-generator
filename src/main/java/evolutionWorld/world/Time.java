@@ -1,4 +1,6 @@
-package evolutionWorld;
+package evolutionWorld.world;
+
+import evolutionWorld.classes.MoveDirection;
 
 public class Time {
     private WorldMap map;

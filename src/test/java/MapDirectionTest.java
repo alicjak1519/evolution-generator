@@ -1,4 +1,4 @@
-import evolutionWorld.MapDirection;
+import evolutionWorld.classes.MapDirection;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

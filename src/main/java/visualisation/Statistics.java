@@ -1,9 +1,8 @@
 package visualisation;
 
-import evolutionWorld.Animal;
-import evolutionWorld.Genotype;
-import evolutionWorld.MapDirection;
-import evolutionWorld.WorldMap;
+import evolutionWorld.classes.Animal;
+import evolutionWorld.classes.Genotype;
+import evolutionWorld.world.WorldMap;
 import javafx.scene.text.Text;
 
 import java.util.HashMap;

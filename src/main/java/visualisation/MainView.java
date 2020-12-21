@@ -2,7 +2,10 @@ package visualisation;
 
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonReader;
-import evolutionWorld.*;
+import evolutionWorld.classes.Animal;
+import evolutionWorld.classes.Vector2d;
+import evolutionWorld.world.Time;
+import evolutionWorld.world.WorldMap;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
@@ -16,6 +19,7 @@ public class MainView extends VBox {
     private GridPane gridPane;
     private Menu menu;
     private Statistics statistics;
+    private AnimalDetails animalDetails;
 
     private WorldMap worldMap;
     private Time worldTime;
@@ -31,7 +35,8 @@ public class MainView extends VBox {
         gridPane.setVgap(5);
         menu = new Menu(this);
         statistics = new Statistics(this, worldMap);
-        this.getChildren().addAll(gridPane, menu, statistics);
+        animalDetails = new AnimalDetails(this, worldMap);
+        this.getChildren().addAll(gridPane, menu, statistics, animalDetails);
 
         worldTime = new Time(worldMap, parameters.getMoveEnergy(), parameters.getPlantEnergy());
         simulator = new Simulator(this, worldTime);
@@ -40,7 +45,7 @@ public class MainView extends VBox {
     private WorldMap createWorldMap(WorldParameters parameters) {
         WorldMap worldMap = new WorldMap(parameters.getHeight(), parameters.getWidth(), parameters.getJungleRatio(), parameters.getStartEnergy());
 
-        for (int i = 0; i < Math.max(parameters.getHeight(), parameters.getWidth()) * 5; i++) {
+        for (int i = 0; i < Math.max(parameters.getHeight(), parameters.getWidth()) * 10; i++) {
             Animal newAnimal = new Animal(worldMap);
             worldMap.place(newAnimal);
         }
@@ -58,6 +63,10 @@ public class MainView extends VBox {
         return simulator;
     }
 
+    public Statistics getStatistics() {
+        return statistics;
+    }
+
     public void draw() {
         epochNumber++;
         drawActualMap(worldMap);
@@ -68,8 +77,10 @@ public class MainView extends VBox {
         for (int i = 0; i < worldMap.getMapWidth(); i++) {
             for (int j = 0; j < worldMap.getMapHeight(); j++) {
                 if (worldMap.getAnimalsMap().containsKey(new Vector2d(i, j))) {
-                    int animalEnergy = worldMap.getAnimalsMap().get(new Vector2d(i, j)).getFirst().getEnergy();
-                    gridPane.add(new javafx.scene.shape.Rectangle(10, 10, javafx.scene.paint.Paint.valueOf(colorAnimalEnergy(animalEnergy))), i, j);
+                    Animal animal = worldMap.getAnimalsMap().get(new Vector2d(i, j)).getFirst();
+                    Rectangle animalRect = new javafx.scene.shape.Rectangle(10, 10, javafx.scene.paint.Paint.valueOf(colorAnimalEnergy(animal.getEnergy())));
+                    gridPane.add(animalRect, i, j);
+                    animalRect.setOnMouseClicked(e -> animalDetails.update(animal));
                 } else if (worldMap.getGrassesMap().containsKey(new Vector2d(i, j))) {
                     gridPane.add(new javafx.scene.shape.Rectangle(10, 10, javafx.scene.paint.Paint.valueOf("658d1b")), i, j);
                 } else {
